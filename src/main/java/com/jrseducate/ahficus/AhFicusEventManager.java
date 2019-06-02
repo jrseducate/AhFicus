@@ -32,31 +32,31 @@ public class AhFicusEventManager
         player.sendMessage(new TextComponentString("Ah Ficus"));
     }
 
-    private long lastUnixTime = 0;
+    private long lastHitTime = 0;
     
     @SubscribeEvent
     public void onWorldTickEvent(WorldTickEvent event)
     {
         if(event.phase == Phase.END && event.side == Side.SERVER)
         {
-            World world   = event.world;
-            long unixTime = System.currentTimeMillis() / 1000L;
+            World world  = event.world;
+            long msTime  = System.currentTimeMillis();
+            long hitTime = msTime / 250;
             
-            if(unixTime % 5 == 0 && lastUnixTime != unixTime)
+            if(hitTime > lastHitTime)
             {
+                lastHitTime = hitTime;
+                
                 for(Entity entity : world.loadedEntityList)
                 {
                     if(entity instanceof EntityPlayer)
                     {
                         EntityPlayer player = (EntityPlayer)entity;
-
-                        player.sendMessage(new TextComponentString(String.format("Ah Ficus: %d", unixTime)));
-                        
-                        BlockPos playerPos = player.getPosition();
-                        int playerX        = playerPos.getX();
-                        int playerY        = playerPos.getY();
-                        int playerZ        = playerPos.getZ();
-                        int radius         = 50;
+                        BlockPos playerPos  = player.getPosition();
+                        int playerX         = playerPos.getX();
+                        int playerY         = playerPos.getY();
+                        int playerZ         = playerPos.getZ();
+                        int radius          = 50;
                         
                         for(int x = playerX - radius; x < playerX + radius; x++)
                         {
@@ -82,14 +82,14 @@ public class AhFicusEventManager
                                         {
                                             ArrayList<Message> messages = new ArrayList<Message>();
                                             
-                                            for(int i = 0; i < 100; i++)
+                                            for(int i = 0; i < 50; i++)
                                             {                                            
                                                 float fenceX  = fencePos.getX() + 0.5f;
                                                 float fenceY  = fencePos.getY() + 1.0f;
                                                 float fenceZ  = fencePos.getZ() + 0.5f;
-                                                float fenceVX = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
-                                                float fenceVY = -1.0f;
-                                                float fenceVZ = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
+                                                float fenceVX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
+                                                float fenceVY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
+                                                float fenceVZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
                                                 
                                                 messages.add(Message.spawnParticle(
                                                     event.side,
@@ -112,8 +112,6 @@ public class AhFicusEventManager
                     }
                 }
             }
-            
-            lastUnixTime = unixTime;
         }
     }
 }
