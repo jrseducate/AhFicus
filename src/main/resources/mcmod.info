@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ahficus",
+  "name": "Ah Ficus",
+  "description": "Ah Ficus, the fulfilling package",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["jrseducate@gmail.com"],
+  "credits": "The Forge and FML guys, for making this example",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
