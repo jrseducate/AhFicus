@@ -1,0 +1,20 @@
+{
+	"_comment": [
+		"Craft a pair of tweezers"
+	],
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"i  ",
+		" i ",
+		"iii"
+	],
+	"group": "ahficus:tweezers",
+	"key": {
+		"i": {
+			"item": "minecraft:iron_ingot"
+		}
+	},
+	"result": {
+		"item": "ahficus:tweezers"
+	}
+}

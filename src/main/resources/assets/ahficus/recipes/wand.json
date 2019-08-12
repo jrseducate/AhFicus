@@ -1,0 +1,20 @@
+{
+	"_comment": [
+		"Craft a wand"
+	],
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"  i",
+		" ii",
+		"i  "
+	],
+	"group": "ahficus:tweezers",
+	"key": {
+		"i": {
+			"item": "minecraft:stick"
+		}
+	},
+	"result": {
+		"item": "ahficus:wand"
+	}
+}

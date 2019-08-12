@@ -1,4 +1,4 @@
-package com.jrseducate.ahficus;
+package com.jrseducate.ahficus.networking;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

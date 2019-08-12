@@ -1,0 +1,6 @@
+{
+    "recipes": {
+		"ender_cookie_shapeless": "com.jrseducate.ahficus.crafting.ItemFoodEnderCookieRecipe$Factory",
+		"item_bound_wand_shapeless": "com.jrseducate.ahficus.crafting.ItemBoundWandRecipe$Factory"
+	}
+}

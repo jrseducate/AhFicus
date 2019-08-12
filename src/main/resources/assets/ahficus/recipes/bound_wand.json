@@ -1,0 +1,18 @@
+{
+	"_comment": [
+		"Craft a bound wand"
+	],
+	"type": "ahficus:item_bound_wand_shapeless",
+	"group": "ahficus:wand_focus",
+	"ingredients": [
+		{
+			"item": "ahficus:wand"
+		},
+		{
+			"item": "ahficus:wand_focus"
+		}
+	],
+	"result": {
+		"item": "ahficus:bound_wand"
+	}
+}

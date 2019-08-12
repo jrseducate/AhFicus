@@ -1,39 +1,81 @@
 package com.jrseducate.ahficus;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = AhFicus.MODID, name = AhFicus.NAME, version = AhFicus.VERSION)
+import com.jrseducate.ahficus.events.AhFicusEventManager;
+import com.jrseducate.ahficus.items.AhFicusItemManager;
+import com.jrseducate.ahficus.networking.AhFicusNetworkingManager;
+import com.jrseducate.ahficus.proxy.CommonProxy;
+import com.jrseducate.ahficus.reference.Reference;
+
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
+
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION)
+
+// TODO: Comment the code
 public class AhFicus
 {
-    public static final String MODID = "ahficus";
-    public static final String NAME = "Ah Ficus";
-    public static final String VERSION = "1.0";
-    public static final SimpleNetworkWrapper NETWORK = NetworkRegistry.INSTANCE.newSimpleChannel(AhFicus.MODID);
-
     public static Logger logger;
-    public static AhFicusEventManager eventManager;
+    public static AhFicusNetworkingManager NetworkingManager;
+    public static AhFicusEventManager EventManager;
+    public static AhFicusItemManager ItemManager;
 
+    @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
+    public static CommonProxy proxy;
+    
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        logger       = event.getModLog();
-        eventManager = new AhFicusEventManager(this);
+        logger = event.getModLog();
         
-        MinecraftForge.EVENT_BUS.register(eventManager);
-        NETWORK.registerMessage(MessageManager.class, Message.class, 0, event.getSide());
+        ItemManager = new AhFicusItemManager();
+        ItemManager.init();
+        
+        NetworkingManager = new AhFicusNetworkingManager();
+        NetworkingManager.init();
+        
+        EventManager = new AhFicusEventManager(NetworkingManager);
+        EventManager.init(event.getSide());
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    }
+    
+    // TODO: Move these helper functions into their own file (AhFicusUtils maybe?)
+    public static Side getSide(World world)
+    {
+        return world.isRemote ? Side.CLIENT : Side.SERVER;
+    }
+    
+    public static boolean isClient(World world)
+    {
+        return getSide(world) == Side.CLIENT;
+    }
+    
+    public static boolean isServer(World world)
+    {
+        return getSide(world) == Side.SERVER;
+    }
+    
+    public static World getWorld(int dimension)
+    {
+        World targetWorld = DimensionManager.getWorld(dimension);
         
+        if(targetWorld == null)
+        {
+            DimensionManager.initDimension(dimension);
+            targetWorld = DimensionManager.getWorld(dimension);
+        }
+        
+        return targetWorld;
     }
 }

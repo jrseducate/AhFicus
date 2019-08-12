@@ -1,4 +1,6 @@
-package com.jrseducate.ahficus;
+package com.jrseducate.ahficus.networking;
+
+import com.jrseducate.ahficus.AhFicus;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;

@@ -1,0 +1,21 @@
+{
+	"_comment": [
+		"Craft an ender cookie"
+	],
+	"type": "ahficus:ender_cookie_shapeless",
+	"group": "ahficus:ender_cookie",
+	"ingredients": [
+		{
+			"item": "minecraft:cookie"
+		},
+		{
+			"item": "minecraft:ender_pearl"
+		},
+		{
+			"item": "ahficus:strand_of_hair"
+		}
+	],
+	"result": {
+		"item": "ahficus:ender_cookie"
+	}
+}

@@ -1,4 +1,6 @@
-package com.jrseducate.ahficus;
+package com.jrseducate.ahficus.networking;
+
+import com.jrseducate.ahficus.AhFicus;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -21,6 +23,7 @@ public class Message implements IMessage
         Null,
         Bulk,
         SpawnParticle,
+        PlaySound,
     }
     
     public MessageType type;
@@ -126,7 +129,7 @@ public class Message implements IMessage
         return false;
     }
     
-    public static Message spawnParticle(Side side, EnumParticleTypes pt, double x, double y, double z, double vx, double vy, double vz)
+    public static Message spawnParticle(Side side, int dimension, EnumParticleTypes pt, double x, double y, double z, double vx, double vy, double vz)
     {
         if(side != Side.SERVER)
         {
@@ -134,6 +137,7 @@ public class Message implements IMessage
         }
         
         return new Message(side, MessageType.SpawnParticle, VarList.fromArray(
+            new Var(dimension),
             new Var(pt.getParticleName()),
             new Var(x),
             new Var(y),
@@ -152,6 +156,7 @@ public class Message implements IMessage
             
             try
             {
+                int dimension       = getVar().getInt();
                 String particleType = getVar().getString();
                 float xCoord        = getVar().getFloat();
                 float yCoord        = getVar().getFloat();
@@ -160,7 +165,10 @@ public class Message implements IMessage
                 float ySpeed        = getVar().getFloat();
                 float zSpeed        = getVar().getFloat();
                 
-                MINECRAFT.world.spawnParticle(EnumParticleTypes.getByName(particleType), xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
+                if(MINECRAFT.world.provider.getDimension() == dimension)
+                {
+                    MINECRAFT.world.spawnParticle(EnumParticleTypes.getByName(particleType), xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
+                }
                 
                 return true;
             }

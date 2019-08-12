@@ -1,4 +1,4 @@
-package com.jrseducate.ahficus;
+package com.jrseducate.ahficus.networking;
 
 import java.util.ArrayList;
 
