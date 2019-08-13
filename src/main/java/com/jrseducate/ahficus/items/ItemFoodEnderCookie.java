@@ -80,7 +80,7 @@ public class ItemFoodEnderCookie extends ItemFood
     {        
         ItemStack stack = playerIn.getHeldItem(handIn);
         NBTTagCompound nbt = stack.getTagCompound();
-        long unixTime = System.currentTimeMillis() / 1000L;
+        long unixTime = AhFicus.getUnix();
         
         if(!stack.hasTagCompound() || !nbt.hasKey("last_eaten") || (nbt.getLong("last_eaten") < unixTime - 2))
         {
@@ -102,7 +102,7 @@ public class ItemFoodEnderCookie extends ItemFood
             NBTTagCompound nbt = stack.getTagCompound();
             MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
             
-            long unixTime = System.currentTimeMillis() / 1000L;
+            long unixTime = AhFicus.getUnix();
             
             nbt.setLong("last_eaten", unixTime);
             

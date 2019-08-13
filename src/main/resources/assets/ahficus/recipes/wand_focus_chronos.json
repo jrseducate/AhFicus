@@ -1,20 +1,20 @@
 {
 	"_comment": [
-		"Craft a levitation wand focus"
+		"Craft a chronos wand focus"
 	],
 	"type": "minecraft:crafting_shaped",
 	"pattern": [
-		"sds",
-		"dfd",
+		"dsd",
+		"dcd",
 		"sds"
 	],
-	"group": "ahficus:tweezers",
+	"group": "ahficus:wand_focus",
 	"key": {
 		"d": {
 			"item": "minecraft:diamond"
 		},
-		"f": {
-			"item": "minecraft:feather"
+		"c": {
+			"item": "minecraft:clock"
 		},
 		"s": {
 			"item": "minecraft:stone",
@@ -24,7 +24,7 @@
 	"result": {
 		"item": "ahficus:wand_focus",
 		"nbt": {
-			"focus_type": "levitation"
+			"focus_type": "chronos"
 		}
 	}
 }

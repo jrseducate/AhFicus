@@ -1,0 +1,30 @@
+{
+	"_comment": [
+		"Craft a levitation wand focus"
+	],
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"sds",
+		"dfd",
+		"sds"
+	],
+	"group": "ahficus:wand_focus",
+	"key": {
+		"d": {
+			"item": "minecraft:diamond"
+		},
+		"f": {
+			"item": "minecraft:feather"
+		},
+		"s": {
+			"item": "minecraft:stone",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "ahficus:wand_focus",
+		"nbt": {
+			"focus_type": "levitation"
+		}
+	}
+}

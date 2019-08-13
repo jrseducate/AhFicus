@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.jrseducate.ahficus.events.AhFicusEventManager;
 import com.jrseducate.ahficus.items.AhFicusItemManager;
+import com.jrseducate.ahficus.items.helpers.AhFicusItemHelperManager;
 import com.jrseducate.ahficus.networking.AhFicusNetworkingManager;
 import com.jrseducate.ahficus.proxy.CommonProxy;
 import com.jrseducate.ahficus.reference.Reference;
@@ -26,6 +27,7 @@ public class AhFicus
     public static AhFicusNetworkingManager NetworkingManager;
     public static AhFicusEventManager EventManager;
     public static AhFicusItemManager ItemManager;
+    public static AhFicusItemHelperManager ItemHelperManager;
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
     public static CommonProxy proxy;
@@ -34,6 +36,9 @@ public class AhFicus
     public void preInit(FMLPreInitializationEvent event)
     {
         logger = event.getModLog();
+        
+        ItemHelperManager = new AhFicusItemHelperManager();
+        ItemHelperManager.init();
         
         ItemManager = new AhFicusItemManager();
         ItemManager.init();
@@ -77,5 +82,10 @@ public class AhFicus
         }
         
         return targetWorld;
+    }
+
+    public static long getUnix()
+    {
+        return System.currentTimeMillis() / 1000L;
     }
 }

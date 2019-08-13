@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.jrseducate.ahficus.AhFicus;
+import com.jrseducate.ahficus.items.helpers.AhFicusItemHelper;
 import com.jrseducate.ahficus.reference.Reference;
 
 import net.minecraft.client.renderer.color.IItemColor;
@@ -32,28 +33,45 @@ public class ItemWandFocus extends Item implements IItemColor
         setMaxStackSize(64);
     }
     
+    public AhFicusItemHelper getItemHelper(ItemStack stack)
+    {
+        NBTTagCompound nbt = stack.getTagCompound();
+        
+        if(stack.hasTagCompound() && nbt.hasKey("focus_type"))
+        {
+            return AhFicus.ItemHelperManager.getItemHelper("wand_focus:" + nbt.getString("focus_type"));
+        }
+        
+        return null;
+    }
+    
     @Override
     public void addInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        
-        if(stack.hasTagCompound())
-        {
-            NBTTagCompound nbt = stack.getTagCompound();
-            
-            if(nbt.hasKey("focus_type"))
-            {
-                tooltip.add(TextFormatting.GREEN + AhFicus.ItemManager.getFocusTypeName(nbt.getString("focus_type")));
-                return;
-            }
-        }
 
-        tooltip.add(TextFormatting.RED + "Broken Focus :(");
+        AhFicusItemHelper itemHelper = getItemHelper(stack);
+        
+        if(itemHelper != null)
+        {
+            itemHelper.addItemInformation(stack, worldIn, tooltip, flagIn);
+        }
+        else
+        {
+            tooltip.add(TextFormatting.RED + "Broken Focus :(");
+        }
     }
     
     @Override
     public int colorMultiplier(ItemStack stack, int tintIndex)
     {
-        return AhFicus.ItemManager.getItemColor(RegistryName, stack, tintIndex);
+        AhFicusItemHelper itemHelper = getItemHelper(stack);
+        
+        if(itemHelper != null)
+        {
+            return itemHelper.getItemColor(stack, tintIndex);
+        }
+        
+        return -1;
     }
 }
