@@ -29,47 +29,53 @@ public class ItemHelperWandFocusLevitation extends ItemHelperWandFocus
     @Override
     public void onItemRightClick(EntityPlayer player, ItemStack stack, NBTTagCompound nbt)
     {
-        if(nbt.hasKey("target"))
+        if(AhFicus.isServer(player.world))
         {
-            clearNBT(stack, nbt);
-            damageItem(stack, player);
+            if(nbt.hasKey("target"))
+            {
+                clearNBT(stack, nbt);
+                damageItem(stack, player);
+            }
+            
+            stack.setTagCompound(nbt);
         }
-        
-        stack.setTagCompound(nbt);
     }
 
     @Override
     public void onLeftClickEntity(EntityPlayer player, Entity entity, ItemStack stack, NBTTagCompound nbt)
     {
-        if(!nbt.hasKey("target"))
+        if(AhFicus.isServer(player.world))
         {
-            nbt.setInteger("target", entity.getEntityId());
-            nbt.setString("target_uuid", entity.getCachedUniqueIdString());
-        }
-        else
-        {                        
-            int entityId = nbt.getInteger("target");
-
-            clearNBT(stack, nbt);
-            
-            Entity target = player.world.getEntityByID(entityId);
-            
-            if(target != null)
+            if(!nbt.hasKey("target"))
             {
-                Vec3d velocity = player.getLookVec().scale(3);
-                target.addVelocity(velocity.x, velocity.y, velocity.z);
+                nbt.setInteger("target", entity.getEntityId());
+                nbt.setString("target_uuid", entity.getCachedUniqueIdString());
+            }
+            else
+            {                        
+                int entityId = nbt.getInteger("target");
+
+                clearNBT(stack, nbt);
+                
+                Entity target = player.world.getEntityByID(entityId);
+                
+                if(target != null)
+                {
+                    Vec3d velocity = player.getLookVec().scale(3);
+                    target.addVelocity(velocity.x, velocity.y, velocity.z);
+                }
+                
+                damageItem(stack, player);
             }
             
-            damageItem(stack, player);
+            stack.setTagCompound(nbt);
         }
-        
-        stack.setTagCompound(nbt);
     }
 
     @Override
     public void onUpdate(Entity entity, ItemStack stack, NBTTagCompound nbt, boolean isSelected)
     {
-        if(nbt.hasKey("target") && AhFicus.isServer(entity.world))
+        if(AhFicus.isServer(entity.world) && nbt.hasKey("target"))
         {
             int entityId = nbt.getInteger("target");
             String targetUUID = nbt.getString("target_uuid");

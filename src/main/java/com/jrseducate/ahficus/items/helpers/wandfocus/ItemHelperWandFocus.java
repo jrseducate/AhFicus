@@ -2,10 +2,12 @@ package com.jrseducate.ahficus.items.helpers.wandfocus;
 
 import java.util.List;
 
+import com.jrseducate.ahficus.items.ItemBoundWand;
 import com.jrseducate.ahficus.items.helpers.AhFicusItemHelper;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -40,6 +42,13 @@ public abstract class ItemHelperWandFocus extends AhFicusItemHelper
     
     public int getItemColor(ItemStack stack, int tintIndex, boolean isActive)
     {
+        Item item = stack.getItem();
+        
+        if(item instanceof ItemBoundWand && tintIndex == 0)
+        {
+            return -1;
+        }
+        
         int color = this.color;
         
         if(!isActive)

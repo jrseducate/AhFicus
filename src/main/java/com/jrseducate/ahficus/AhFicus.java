@@ -3,6 +3,7 @@ package com.jrseducate.ahficus;
 import org.apache.logging.log4j.Logger;
 
 import com.jrseducate.ahficus.events.AhFicusEventManager;
+import com.jrseducate.ahficus.helpers.structure.AhFicusStructureManager;
 import com.jrseducate.ahficus.items.AhFicusItemManager;
 import com.jrseducate.ahficus.items.helpers.AhFicusItemHelperManager;
 import com.jrseducate.ahficus.networking.AhFicusNetworkingManager;
@@ -28,6 +29,7 @@ public class AhFicus
     public static AhFicusEventManager EventManager;
     public static AhFicusItemManager ItemManager;
     public static AhFicusItemHelperManager ItemHelperManager;
+    public static AhFicusStructureManager StructureManager;
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
     public static CommonProxy proxy;
@@ -48,6 +50,9 @@ public class AhFicus
         
         EventManager = new AhFicusEventManager(NetworkingManager);
         EventManager.init(event.getSide());
+        
+        StructureManager = new AhFicusStructureManager();
+        StructureManager.init();
     }
 
     @EventHandler
@@ -55,7 +60,6 @@ public class AhFicus
     {
     }
     
-    // TODO: Move these helper functions into their own file (AhFicusUtils maybe?)
     public static Side getSide(World world)
     {
         return world.isRemote ? Side.CLIENT : Side.SERVER;

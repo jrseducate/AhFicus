@@ -3,11 +3,9 @@ package com.jrseducate.ahficus.items;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import com.jrseducate.ahficus.AhFicus;
 import com.jrseducate.ahficus.networking.Message;
-import com.jrseducate.ahficus.reference.Reference;
 
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -15,7 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -23,7 +20,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -33,18 +29,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class ItemFoodEnderCookie extends ItemFood
+public class ItemFoodEnderCookie extends AhFicusItemFood
 {
     public static final String RegistryName = "ender_cookie";
     
     public ItemFoodEnderCookie()
     {
-        super(2, false);
-        
-        // TODO: Make registration of items a common method (in AhFicusItemManager)
-        setRegistryName(Reference.MOD_ID, RegistryName);
-        final ResourceLocation registryName = Objects.requireNonNull(getRegistryName());
-        setUnlocalizedName(registryName.toString());
+        super(RegistryName, 2, false);
         
         setCreativeTab(CreativeTabs.MISC);
         setMaxStackSize(16);
@@ -78,17 +69,22 @@ public class ItemFoodEnderCookie extends ItemFood
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {        
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        NBTTagCompound nbt = stack.getTagCompound();
-        long unixTime = AhFicus.getUnix();
-        
-        if(!stack.hasTagCompound() || !nbt.hasKey("last_eaten") || (nbt.getLong("last_eaten") < unixTime - 2))
+        if(AhFicus.isServer(playerIn.world))
         {
-            playerIn.setActiveHand(handIn);
-            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+            ItemStack stack = playerIn.getHeldItem(handIn);
+            NBTTagCompound nbt = stack.getTagCompound();
+            long unixTime = AhFicus.getUnix();
+            
+            if(!stack.hasTagCompound() || !nbt.hasKey("last_eaten") || (nbt.getLong("last_eaten") < unixTime - 2))
+            {
+                playerIn.setActiveHand(handIn);
+                return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+            }
+            
+            return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
         }
         
-        return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
+        return super.onItemRightClick(worldIn, playerIn, handIn);
     }
     
     // TODO: Make a common function for both teleportation cases

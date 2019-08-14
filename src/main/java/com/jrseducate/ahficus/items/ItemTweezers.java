@@ -1,31 +1,24 @@
 package com.jrseducate.ahficus.items;
 
-import java.util.Objects;
-
 import com.jrseducate.ahficus.AhFicus;
-import com.jrseducate.ahficus.reference.Reference;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class ItemTweezers extends Item
+public class ItemTweezers extends AhFicusItem
 {
     public static final String RegistryName = "tweezers";
     
     public ItemTweezers()
     {
-        setRegistryName(Reference.MOD_ID, RegistryName);
-        final ResourceLocation registryName = Objects.requireNonNull(getRegistryName());
-        setUnlocalizedName(registryName.toString());
+        super(RegistryName);
         
         setCreativeTab(CreativeTabs.MISC);
         setMaxStackSize(1);
@@ -76,9 +69,13 @@ public class ItemTweezers extends Item
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
         ItemStack heldItemStack = handIn == EnumHand.MAIN_HAND ? playerIn.getHeldItemMainhand() : playerIn.getHeldItemOffhand();
-        EntityPlayer target     = playerIn;
         
-        pluckPlayerHair(heldItemStack, playerIn, target);
+        if(AhFicus.isServer(playerIn.world))
+        {
+            EntityPlayer target = playerIn;
+            
+            pluckPlayerHair(heldItemStack, playerIn, target);
+        }
         
         return ActionResult.newResult(EnumActionResult.SUCCESS, heldItemStack);
     }
@@ -86,15 +83,18 @@ public class ItemTweezers extends Item
     @Override
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
     {
-        if(entity instanceof EntityPlayer)
+        if(AhFicus.isServer(player.world))
         {
-            EntityPlayer target = (EntityPlayer) entity;
-            
-            pluckPlayerHair(stack, player, target);
-        }
-        else
-        {
-            pluckEntityHair(stack, player, entity);
+            if(entity instanceof EntityPlayer)
+            {
+                EntityPlayer target = (EntityPlayer) entity;
+                
+                pluckPlayerHair(stack, player, target);
+            }
+            else
+            {
+                pluckEntityHair(stack, player, entity);
+            }
         }
         
         return true;

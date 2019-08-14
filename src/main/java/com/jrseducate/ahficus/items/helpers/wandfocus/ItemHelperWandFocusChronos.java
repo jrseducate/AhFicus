@@ -37,12 +37,15 @@ public class ItemHelperWandFocusChronos extends ItemHelperWandFocus
     @Override
     public void onItemRightClick(EntityPlayer player, ItemStack stack, NBTTagCompound nbt)
     {
-        if(nbt.getLong("last_use") < AhFicus.getUnix() - 0.25)
+        if(AhFicus.isServer(player.world))
         {
-            clearNBT(stack, nbt);
+            if(nbt.getLong("last_use") < AhFicus.getUnix() - 0.25)
+            {
+                clearNBT(stack, nbt);
+            }
+            
+            stack.setTagCompound(nbt);
         }
-        
-        stack.setTagCompound(nbt);
     }
 
     @Override
@@ -54,49 +57,49 @@ public class ItemHelperWandFocusChronos extends ItemHelperWandFocus
     @Override
     public void onUpdate(Entity entity, ItemStack stack, NBTTagCompound nbt, boolean isSelected)
     {
-        if(nbt.hasKey("dimension") && nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z") && isSelected && AhFicus.isServer(entity.world))
-        {
-            int dimension = nbt.getInteger("dimension");
-            int ticksUsed = nbt.hasKey("ticks_used") ? nbt.getInteger("ticks_used") : -1;
-            
-            if(entity.dimension == dimension)
-            {
-                BlockPos blockPos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
-                
-                IBlockState blockState = entity.world.getBlockState(blockPos);
-                
-                TileEntity tileEntity = entity.world.getTileEntity(blockPos);
-                
-                for(int i = 0; i < ticksPerTick; i++)
-                {
-                    if(tileEntity != null)
-                    {
-                        if(tileEntity instanceof ITickable)
-                        {
-                            ((ITickable) tileEntity).update();
-                        }
-                    }
-                    
-                    entity.world.immediateBlockTick(blockPos, blockState, entity.world.rand);
-                }
-                
-                if(ticksUsed > 20)
-                {
-                    ticksUsed = -1;
-                    
-                    damageItem(stack, entity instanceof EntityLivingBase ? (EntityLivingBase)entity : null);
-                }
-                
-                nbt.setInteger("ticks_used", ticksUsed + 1);
-                
-                stack.setTagCompound(nbt);
-                
-                return;
-            }
-        }
-        
         if(AhFicus.isServer(entity.world))
         {
+            if(nbt.hasKey("dimension") && nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z") && isSelected)
+            {
+                int dimension = nbt.getInteger("dimension");
+                int ticksUsed = nbt.hasKey("ticks_used") ? nbt.getInteger("ticks_used") : -1;
+                
+                if(entity.dimension == dimension)
+                {
+                    BlockPos blockPos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+                    
+                    IBlockState blockState = entity.world.getBlockState(blockPos);
+                    
+                    TileEntity tileEntity = entity.world.getTileEntity(blockPos);
+                    
+                    for(int i = 0; i < ticksPerTick; i++)
+                    {
+                        if(tileEntity != null)
+                        {
+                            if(tileEntity instanceof ITickable)
+                            {
+                                ((ITickable) tileEntity).update();
+                            }
+                        }
+                        
+                        entity.world.immediateBlockTick(blockPos, blockState, entity.world.rand);
+                    }
+                    
+                    if(ticksUsed > 20)
+                    {
+                        ticksUsed = -1;
+                        
+                        damageItem(stack, entity instanceof EntityLivingBase ? (EntityLivingBase)entity : null);
+                    }
+                    
+                    nbt.setInteger("ticks_used", ticksUsed + 1);
+                    
+                    stack.setTagCompound(nbt);
+                    
+                    return;
+                }
+            }
+
             clearNBT(stack, nbt);
             
             stack.setTagCompound(nbt);
@@ -107,26 +110,29 @@ public class ItemHelperWandFocusChronos extends ItemHelperWandFocus
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, ItemStack stack, NBTTagCompound nbt, EnumFacing facing,
             float hitX, float hitY, float hitZ)
     {
-        if(nbt.hasKey("dimension") && nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z") && AhFicus.isServer(player.world))
+        if(AhFicus.isServer(player.world))
         {
-            BlockPos blockPos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
-            
-            if(blockPos.equals(pos))
+            if(nbt.hasKey("dimension") && nbt.hasKey("x") && nbt.hasKey("y") && nbt.hasKey("z"))
             {
-                clearNBT(stack, nbt);
+                BlockPos blockPos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
                 
-                stack.setTagCompound(nbt);
-                
-                return EnumActionResult.SUCCESS;
+                if(blockPos.equals(pos))
+                {
+                    clearNBT(stack, nbt);
+                    
+                    stack.setTagCompound(nbt);
+                    
+                    return EnumActionResult.SUCCESS;
+                }
             }
-        }
+                
+            nbt.setInteger("dimension", player.dimension);
+            nbt.setInteger("x", pos.getX());
+            nbt.setInteger("y", pos.getY());
+            nbt.setInteger("z", pos.getZ());
             
-        nbt.setInteger("dimension", player.dimension);
-        nbt.setInteger("x", pos.getX());
-        nbt.setInteger("y", pos.getY());
-        nbt.setInteger("z", pos.getZ());
-        
-        stack.setTagCompound(nbt);
+            stack.setTagCompound(nbt);
+        }
         
         return EnumActionResult.SUCCESS;
     }

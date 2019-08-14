@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import com.jrseducate.ahficus.reference.Reference;
 
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 
 public class AhFicusItemManager
 {
@@ -32,6 +34,7 @@ public class AhFicusItemManager
         addItem(ItemWand.class);
         addItem(ItemBoundWand.class);
         addItem(ItemWandFocus.class);
+        addItem(ItemRitualStone.class);
     }
     
     public void addItem(Class<?> itemClass)
@@ -70,38 +73,11 @@ public class AhFicusItemManager
         
         return items.toArray(new Item[0]);
     }
-
-    // TODO: Change this to looking up from a configuration file
-    public int getItemColor(String registryName, ItemStack stack, int tintIndex)
+    
+    public void registerItem(Item item, String RegistryName)
     {
-        NBTTagCompound nbt = stack.getTagCompound();
-        
-        switch(registryName)
-        {
-            case ItemWandFocus.RegistryName:
-            case ItemBoundWand.RegistryName:
-                if(stack.hasTagCompound() && nbt.hasKey("focus_type"))
-                {
-                    switch(nbt.getString("focus_type"))
-                    {
-                        case "levitation":
-                            return 0xFFFF00FF;
-                    }
-                }
-        }
-        
-        return -1;
-    }
-
-    // TODO: Change to represent all additionalText on items
-    public String getFocusTypeName(String focusType)
-    {
-        switch(focusType)
-        {
-            case "levitation":
-                return "Levitation";
-        }
-        
-        return null;
+        item.setRegistryName(Reference.MOD_ID, RegistryName);
+        final ResourceLocation registryName = Objects.requireNonNull(item.getRegistryName());
+        item.setUnlocalizedName(registryName.toString());
     }
 }
