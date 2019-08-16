@@ -1,8 +1,7 @@
 package com.jrseducate.ahficus.events;
 
 import com.jrseducate.ahficus.AhFicus;
-import com.jrseducate.ahficus.items.ItemBoundWand;
-import com.jrseducate.ahficus.items.ItemTweezers;
+import com.jrseducate.ahficus.items.ItemPreventDefaultRightClick;
 import com.jrseducate.ahficus.networking.AhFicusNetworkingManager;
 import com.jrseducate.ahficus.networking.Message;
 import com.jrseducate.ahficus.networking.MessageManager;
@@ -21,6 +20,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class AhFicusEventManager
@@ -71,12 +71,17 @@ public class AhFicusEventManager
     {
         ItemStack itemStack = event.getItemStack();
         
-        // TODO: Make this check more generalized
-        if(itemStack.getItem() instanceof ItemBoundWand || itemStack.getItem() instanceof ItemTweezers)
+        if(itemStack.getItem() instanceof ItemPreventDefaultRightClick)
         {
             event.setCanceled(true);
             event.setCancellationResult(EnumActionResult.FAIL);
             event.setResult(Result.DENY);
         }
+    }
+    
+    @SubscribeEvent
+    public void registerEntities(RegistryEvent.Register<EntityEntry> event)
+    {
+//        event.getRegistry().register(new EntityEntry(EntityLightning.class, EntityLightning.RegistryName));
     }
 }

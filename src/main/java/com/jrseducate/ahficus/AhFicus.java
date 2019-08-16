@@ -2,6 +2,8 @@ package com.jrseducate.ahficus;
 
 import org.apache.logging.log4j.Logger;
 
+import com.jrseducate.ahficus.entity.AhFicusEntityManager;
+import com.jrseducate.ahficus.entity.render.AhFicusEntityRenderManager;
 import com.jrseducate.ahficus.events.AhFicusEventManager;
 import com.jrseducate.ahficus.helpers.structure.AhFicusStructureManager;
 import com.jrseducate.ahficus.items.AhFicusItemManager;
@@ -30,6 +32,8 @@ public class AhFicus
     public static AhFicusItemManager ItemManager;
     public static AhFicusItemHelperManager ItemHelperManager;
     public static AhFicusStructureManager StructureManager;
+    public static AhFicusEntityManager EntityManager;
+    public static AhFicusEntityRenderManager EntityRenderManager;
 
     @SidedProxy(clientSide = Reference.PROXY_CLASS_CLIENT, serverSide = Reference.PROXY_CLASS_SERVER)
     public static CommonProxy proxy;
@@ -39,20 +43,26 @@ public class AhFicus
     {
         logger = event.getModLog();
         
-        ItemHelperManager = new AhFicusItemHelperManager();
-        ItemHelperManager.init();
-        
-        ItemManager = new AhFicusItemManager();
-        ItemManager.init();
-        
         NetworkingManager = new AhFicusNetworkingManager();
         NetworkingManager.init();
         
         EventManager = new AhFicusEventManager(NetworkingManager);
         EventManager.init(event.getSide());
         
+        ItemManager = new AhFicusItemManager();
+        ItemManager.init();
+        
+        ItemHelperManager = new AhFicusItemHelperManager();
+        ItemHelperManager.init();
+        
         StructureManager = new AhFicusStructureManager();
         StructureManager.init();
+        
+        EntityManager = new AhFicusEntityManager();
+        EntityManager.init();
+        
+        EntityRenderManager = new AhFicusEntityRenderManager();
+        EntityRenderManager.init();
     }
 
     @EventHandler

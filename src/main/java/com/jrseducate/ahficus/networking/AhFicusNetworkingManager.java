@@ -7,7 +7,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 
 public class AhFicusNetworkingManager
 {
-    // TODO: Maybe make this static for easier access?
     public SimpleNetworkWrapper Network;
     
     public void init()

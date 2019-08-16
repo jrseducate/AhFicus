@@ -2,27 +2,45 @@ package com.jrseducate.ahficus.networking;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public class Var
 {    
     
     enum VarType
     {
+        BOOLEAN,
         INT,
         FLOAT,
         STRING,
         VARLIST,
+        NBT,
+        CLASS,
+        BLOCK_POS,
     }
     
+    // TODO: Optimize storage of different types (possibly using subclasses?)
     VarType type;
+    boolean booleanV;
     int intV;
     float floatV;
     String stringV;
     VarList varlistV;
+    NBTTagCompound nbtV;
+    Class<?> classV;
+    BlockPos blockPosV;
     
     public Var()
     {
         type = null;
+    }
+    
+    public Var(boolean val)
+    {
+        type = VarType.BOOLEAN;
+        booleanV = val;
     }
     
     public Var(int val)
@@ -53,6 +71,34 @@ public class Var
     {
         type     = VarType.VARLIST;
         varlistV = val;
+    }
+    
+    public Var(NBTTagCompound val)
+    {
+        type = VarType.NBT;
+        nbtV = val;
+    }
+    
+    public Var(Class<?> val)
+    {
+        type   = VarType.CLASS;
+        classV = val;
+    }
+    
+    public Var(BlockPos blockPos)
+    {
+        type      = VarType.BLOCK_POS;
+        blockPosV = blockPos;
+    }
+    
+    public boolean getBoolean() throws Exception
+    {
+        if(type != VarType.BOOLEAN)
+        {
+            throw new Exception("Var is not of type " + VarType.BOOLEAN.name());
+        }
+        
+        return this.booleanV;
     }
     
     public int getInt() throws Exception
@@ -103,37 +149,88 @@ public class Var
         return this.varlistV;
     }
     
+    public NBTTagCompound getNBT() throws Exception
+    {
+        if(type != VarType.NBT)
+        {
+            throw new Exception("Var is not of type " + VarType.NBT.name());
+        }
+        
+        return this.nbtV;
+    }
+    
+    public Class<?> getVarClass() throws Exception
+    {
+        if(type != VarType.CLASS)
+        {
+            throw new Exception("Var is not of type " + VarType.CLASS.name());
+        }
+        
+        return this.classV;
+    }
+    
+    public BlockPos getBlockPos() throws Exception
+    {
+        if(type != VarType.BLOCK_POS)
+        {
+            throw new Exception("Var is not of type " + VarType.BLOCK_POS.name());
+        }
+        
+        return blockPosV;
+    }
+    
     public void writeToBuffer(ByteBuf buf)
     {
         buf.writeInt(type.ordinal());
         
         switch(type)
         {
+            case BOOLEAN:
+            {
+                buf.writeBoolean(booleanV);
+            } break;
+            
             case INT:
-                
+            {
                 buf.writeInt(intV);
-                
-                break;
+            } break;
 
             case FLOAT:
-                
+            {
                 buf.writeFloat(floatV);
-                
-                break;
+            } break;
 
             case STRING:
-                
+            {
                 byte[] bytes = stringV.getBytes();
                 buf.writeInt(bytes.length);
                 buf.writeBytes(bytes);
-                
-                break;
+            } break;
             
             case VARLIST:
-                
+            {
                 varlistV.writeToBuffer(buf);
+            } break;
                 
-                break;
+            case NBT:
+            {
+                ByteBufUtils.writeTag(buf, nbtV);
+            } break;
+                
+            case CLASS:
+            {
+                String string = classV.getName();
+                byte[] bytes = string.getBytes();
+                buf.writeInt(bytes.length);
+                buf.writeBytes(bytes);
+            } break;
+                
+            case BLOCK_POS:
+            {
+                buf.writeInt(blockPosV.getX());
+                buf.writeInt(blockPosV.getY());
+                buf.writeInt(blockPosV.getZ());
+            } break;
         }
     }
     
@@ -141,39 +238,69 @@ public class Var
     {
         type = VarType.values()[buf.readInt()];
 
-        switch(type)
+        try
         {
-            case INT:
+            switch(type)
+            {
+                case BOOLEAN:
+                {
+                    booleanV = buf.readBoolean();
+                } break;
                 
-                intV = buf.readInt();
-                
-                break;
-                
-            case FLOAT:
-                
-                floatV = buf.readFloat();
-                
-                break;
+                case INT:
+                {
+                    intV = buf.readInt();
+                } break;
+                    
+                case FLOAT:
+                {
+                    floatV = buf.readFloat();
+                } break;
 
-            case STRING:
+                case STRING:  
+                {
+                    int length         = buf.readInt();
+                    ByteBuf byteBuffer = Unpooled.buffer(length);
+                    
+                    buf.readBytes(byteBuffer, length);
+                    
+                    byte[] bytes = byteBuffer.array();
+                    stringV      = new String(bytes);
+                } break;
+                    
+                case VARLIST:
+                {
+                    varlistV = new VarList();
+                    
+                    varlistV.readFromBuffer(buf);
+                } break;
+                    
+                case NBT:
+                {
+                    nbtV = ByteBufUtils.readTag(buf);
+                } break;
                 
-                int length         = buf.readInt();
-                ByteBuf byteBuffer = Unpooled.buffer(length);
-                
-                buf.readBytes(byteBuffer, length);
-                
-                byte[] bytes = byteBuffer.array();
-                stringV      = new String(bytes);
-                
-                break;
-                
-            case VARLIST:
-                
-                varlistV = new VarList();
-                
-                varlistV.readFromBuffer(buf);
-                
-                break;
+                case CLASS:
+                {
+                    int length         = buf.readInt();
+                    ByteBuf byteBuffer = Unpooled.buffer(length);
+                    
+                    buf.readBytes(byteBuffer, length);
+                    
+                    byte[] bytes  = byteBuffer.array();
+                    String string = new String(bytes);
+                    classV        = Class.forName(string);
+                } break;
+                    
+                case BLOCK_POS:
+                {
+                    int x     = buf.readInt();
+                    int y     = buf.readInt();
+                    int z     = buf.readInt();
+                    blockPosV = new BlockPos(x, y, z);
+                } break;
+            }
         }
+        catch(Exception ex) {};
     }
 }

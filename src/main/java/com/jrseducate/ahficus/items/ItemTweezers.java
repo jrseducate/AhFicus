@@ -12,7 +12,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
-public class ItemTweezers extends AhFicusItem
+public class ItemTweezers extends AhFicusItem implements ItemPreventDefaultRightClick
 {
     public static final String RegistryName = "tweezers";
     

@@ -92,7 +92,6 @@ public class ItemRitualStone extends AhFicusItem implements IItemColor
             {
                 color = color & 0xFF444444;
             }
-//            if(stack)
             
             return color;
         }

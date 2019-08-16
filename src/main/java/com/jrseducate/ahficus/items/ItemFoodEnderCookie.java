@@ -69,25 +69,76 @@ public class ItemFoodEnderCookie extends AhFicusItemFood
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {        
-        if(AhFicus.isServer(playerIn.world))
+        ItemStack stack = playerIn.getHeldItem(handIn);
+        NBTTagCompound nbt = stack.getTagCompound();
+        long unixTime = AhFicus.getUnix();
+        
+        if(!stack.hasTagCompound() || !nbt.hasKey("last_eaten") || (nbt.getLong("last_eaten") < unixTime - 2))
         {
-            ItemStack stack = playerIn.getHeldItem(handIn);
-            NBTTagCompound nbt = stack.getTagCompound();
-            long unixTime = AhFicus.getUnix();
-            
-            if(!stack.hasTagCompound() || !nbt.hasKey("last_eaten") || (nbt.getLong("last_eaten") < unixTime - 2))
-            {
-                playerIn.setActiveHand(handIn);
-                return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
-            }
-            
-            return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
+            playerIn.setActiveHand(handIn);
+            return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
         }
         
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+        return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
     }
     
-    // TODO: Make a common function for both teleportation cases
+    private void teleportToTarget(MinecraftServer server, final World finalTargetWorld, EntityPlayer player, final int dimensionFinal, final Vec3d newPosFinal, final String finalTargetName)
+    {
+        finalTargetWorld.playSound(null, new BlockPos(newPosFinal.x,  newPosFinal.y,  newPosFinal.z), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
+        player.world.playSound(null, new BlockPos(player.posX,  player.posY,  player.posZ), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
+        
+        ArrayList<Message> messages = new ArrayList<Message>();
+      
+        for(int i = 0; i < 50; i++)
+        {                                            
+            float x  = (float)newPosFinal.x + 0.5f;
+            float y  = (float)newPosFinal.y + 1.0f;
+            float z  = (float)newPosFinal.z + 0.5f;
+            float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
+            float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
+            float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
+          
+            messages.add(Message.spawnParticle(
+                AhFicus.getSide(player.world),
+                dimensionFinal,
+                EnumParticleTypes.PORTAL,
+                x,
+                y,
+                z,
+                vX,
+                vY,
+                vZ
+            ));
+        }
+      
+        for(int i = 0; i < 50; i++)
+        {                                            
+            float x  = (float)player.posX + 0.5f;
+            float y  = (float)player.posY + 1.0f;
+            float z  = (float)player.posZ + 0.5f;
+            float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
+            float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
+            float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
+          
+            messages.add(Message.spawnParticle(
+                AhFicus.getSide(player.world),
+                player.dimension,
+                EnumParticleTypes.PORTAL,
+                x,
+                y,
+                z,
+                vX,
+                vY,
+                vZ
+            ));
+        }
+        
+        server.getCommandManager().executeCommand(server, "/tp " + player.getName() + " " + newPosFinal.x + " " + newPosFinal.y + " " + newPosFinal.z);
+        player.sendStatusMessage(new TextComponentString( TextFormatting.RED + "#AhFicus:" + TextFormatting.WHITE + " Telporting to " + finalTargetName), true);
+      
+        AhFicus.NetworkingManager.Network.sendToAll(Message.bulkMessage(AhFicus.getSide(player.world), messages.toArray(new Message[0])));
+    }
+    
     @Override
     protected void onFoodEaten(ItemStack stack, World worldIn, EntityPlayer player)
     {
@@ -144,59 +195,7 @@ public class ItemFoodEnderCookie extends AhFicusItemFood
                             @Override
                             public void placeEntity(World world, Entity entity, float yaw)
                             {
-                                finalTargetWorld.playSound(null, new BlockPos(newPosFinal.x,  newPosFinal.y,  newPosFinal.z), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
-                                player.world.playSound(null, new BlockPos(player.posX,  player.posY,  player.posZ), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
-                                
-                                ArrayList<Message> messages = new ArrayList<Message>();
-                              
-                                for(int i = 0; i < 50; i++)
-                                {                                            
-                                    float x  = (float)newPosFinal.x + 0.5f;
-                                    float y  = (float)newPosFinal.y + 1.0f;
-                                    float z  = (float)newPosFinal.z + 0.5f;
-                                    float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                                    float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
-                                    float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                                  
-                                    messages.add(Message.spawnParticle(
-                                        AhFicus.getSide(worldIn),
-                                        dimensionFinal,
-                                        EnumParticleTypes.PORTAL,
-                                        x,
-                                        y,
-                                        z,
-                                        vX,
-                                        vY,
-                                        vZ
-                                    ));
-                                }
-                              
-                                for(int i = 0; i < 50; i++)
-                                {                                            
-                                    float x  = (float)player.posX + 0.5f;
-                                    float y  = (float)player.posY + 1.0f;
-                                    float z  = (float)player.posZ + 0.5f;
-                                    float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                                    float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
-                                    float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                                  
-                                    messages.add(Message.spawnParticle(
-                                        AhFicus.getSide(worldIn),
-                                        player.dimension,
-                                        EnumParticleTypes.PORTAL,
-                                        x,
-                                        y,
-                                        z,
-                                        vX,
-                                        vY,
-                                        vZ
-                                    ));
-                                }
-                                
-                                server.getCommandManager().executeCommand(server, "/tp " + player.getName() + " " + newPosFinal.x + " " + newPosFinal.y + " " + newPosFinal.z);
-                                player.sendStatusMessage(new TextComponentString( TextFormatting.RED + "#AhFicus:" + TextFormatting.WHITE + " Telporting to " + finalTargetName), true);
-                              
-                                AhFicus.NetworkingManager.Network.sendToAll(Message.bulkMessage(AhFicus.getSide(worldIn), messages.toArray(new Message[0])));
+                                teleportToTarget(server, finalTargetWorld, player, dimensionFinal, newPosFinal, finalTargetName);
                             }
                         };
                         
@@ -233,60 +232,8 @@ public class ItemFoodEnderCookie extends AhFicusItemFood
                     if(targetEntity != null)
                     {
                         Vec3d newPos = new Vec3d(targetEntity.posX, targetEntity.posY, targetEntity.posZ);
-                        
-                        player.world.playSound(null, new BlockPos(newPos.x,  newPos.y,  newPos.z), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
-                        player.world.playSound(null, new BlockPos(player.posX,  player.posY,  player.posZ), SoundEvents.BLOCK_PORTAL_TRAVEL, SoundCategory.MASTER, 0.25f, 1.0f);
-                        
-                        ArrayList<Message> messages = new ArrayList<Message>();
-                      
-                        for(int i = 0; i < 50; i++)
-                        {                                            
-                            float x  = (float)newPos.x + 0.5f;
-                            float y  = (float)newPos.y + 1.0f;
-                            float z  = (float)newPos.z + 0.5f;
-                            float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                            float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
-                            float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                          
-                            messages.add(Message.spawnParticle(
-                                AhFicus.getSide(worldIn),
-                                player.dimension,
-                                EnumParticleTypes.PORTAL,
-                                x,
-                                y,
-                                z,
-                                vX,
-                                vY,
-                                vZ
-                            ));
-                        }
-                      
-                        for(int i = 0; i < 50; i++)
-                        {                                            
-                            float x  = (float)player.posX + 0.5f;
-                            float y  = (float)player.posY + 1.0f;
-                            float z  = (float)player.posZ + 0.5f;
-                            float vX = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                            float vY = (float)((Math.random() * 2.0f) - 1.0f) * 5.0f;
-                            float vZ = (float)((Math.random() * 2.0f) - 1.0f) * 1.5f;
-                          
-                            messages.add(Message.spawnParticle(
-                                AhFicus.getSide(worldIn),
-                                player.dimension,
-                                EnumParticleTypes.PORTAL,
-                                x,
-                                y,
-                                z,
-                                vX,
-                                vY,
-                                vZ
-                            ));
-                        }
-                        
-                        server.getCommandManager().executeCommand(server, "/tp " + player.getName() + " " + newPos.x + " " + newPos.y + " " + newPos.z);
-                        player.sendStatusMessage(new TextComponentString( TextFormatting.RED + "#AhFicus:" + TextFormatting.WHITE + " Telporting to " + nbt.getString("entity_display")), true);
-                      
-                        AhFicus.NetworkingManager.Network.sendToAll(Message.bulkMessage(AhFicus.getSide(worldIn), messages.toArray(new Message[0])));
+
+                        teleportToTarget(server, player.world, player, player.dimension, newPos, nbt.getString("entity_display"));
                     }
                 }
             }

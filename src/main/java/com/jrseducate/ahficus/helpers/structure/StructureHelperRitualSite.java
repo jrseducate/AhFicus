@@ -1,10 +1,13 @@
 package com.jrseducate.ahficus.helpers.structure;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.jrseducate.ahficus.AhFicus;
+import com.jrseducate.ahficus.networking.Message;
+
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -21,13 +24,17 @@ public class StructureHelperRitualSite extends AhFicusStructureHelper
         map.put('r', new StructurePiece(Blocks.REDSTONE_ORE, Blocks.LIT_REDSTONE_ORE));
         map.put('b', new StructurePiece(Blocks.STONEBRICK));
         map.put('f', new StructurePiece(Blocks.FIRE));
+        map.put('1', new StructurePiece(Blocks.DIRT));
+        map.put('2', new StructurePiece(Blocks.STONE));
+        map.put('3', new StructurePiece(Blocks.GRAVEL));
+        map.put('4', new StructurePiece(Blocks.SAND));
         
         this.addLayer(new String[] {
-            "lrlrl",
+            "1rlr2",
             "rlblr",
             "lbfbl",
             "rlblr",
-            "lrlrl",
+            "4rlr3",
         }, map);
     }
     
@@ -42,19 +49,26 @@ public class StructureHelperRitualSite extends AhFicusStructureHelper
     @Override
     public void activateStructure(World world, List<BlockPos> blocks)
     {
+        List<Message> messages = new ArrayList<Message>();
+        
         for(BlockPos blockPos : blocks)
         {
             IBlockState blockState = world.getBlockState(blockPos);
             
             if(blockState.getBlock() == Blocks.STONEBRICK)
             {
-                world.addWeatherEffect(new EntityLightningBolt(world, (double)blockPos.getX() + 0.5f, (double)blockPos.getY(), (double)blockPos.getZ() + 0.5f, true));
+                messages.add(Message.spawnLightning(AhFicus.getSide(world), world.provider.getDimension(), blockPos, true));
             }
             if(blockState.getBlock() == Blocks.REDSTONE_ORE)
             {
                 blockState = Blocks.LIT_REDSTONE_ORE.getDefaultState();
                 world.setBlockState(blockPos, blockState);
             }
+        }
+        
+        if(messages.size() > 0)
+        {
+            AhFicus.NetworkingManager.Network.sendToAll(Message.bulkMessage(AhFicus.getSide(world), messages.toArray(new Message[0])));
         }
     }
 }

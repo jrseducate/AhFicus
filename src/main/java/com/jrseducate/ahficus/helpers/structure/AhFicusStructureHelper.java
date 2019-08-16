@@ -72,13 +72,18 @@ abstract public class AhFicusStructureHelper
     }
     
     String name = null;
-    Map<BlockPos, StructurePiece> structure;
+    ArrayList<Map<BlockPos, StructurePiece>> structure;
     int y = 0;
     
     public AhFicusStructureHelper(String name)
     {
         this.name = name;
-        structure = new HashMap<BlockPos, StructurePiece>();
+        structure = new ArrayList<Map<BlockPos, StructurePiece>>();
+        
+        for(int i = 0; i < 4; i++)
+        {
+            structure.add(new HashMap<BlockPos, StructurePiece>());
+        }
     }
     
     public String getName()
@@ -90,22 +95,42 @@ abstract public class AhFicusStructureHelper
     {
         int x = 0;
         int z = 0;
+        int height = layer.length;
         
         for(String row : layer)
         {
+            int width = row.length();
+            
             for(char cell : row.toCharArray())
             {
-                BlockPos blockPos = new BlockPos(x, y, z);
+                int x2 = z;
+                int z2 = width - x - 1;
+                int x3 = z2;
+                int z3 = height - x2 - 1;
+                int x4 = z3;
+                int z4 = width - x3 - 1;
                 
-                if(cell == '*')
+                BlockPos blockPosList[] = {
+                        new BlockPos(x, y, z),
+                        new BlockPos(x2, y, z2),
+                        new BlockPos(x3, y, z3),
+                        new BlockPos(x4, y, z4),
+                };
+                
+                for(int i = 0; i < blockPosList.length; i++)
                 {
-                    structure.put(blockPos, new StructurePiece());
-                }
-                else
-                {
-                    StructurePiece piece = map.get(cell);
+                    BlockPos blockPos = blockPosList[i];
                     
-                    structure.put(blockPos, piece);
+                    if(cell == '*')
+                    {
+                        structure.get(i).put(blockPos, new StructurePiece());
+                    }
+                    else
+                    {
+                        StructurePiece piece = map.get(cell);
+                        
+                        structure.get(i).put(blockPos, piece);
+                    }
                 }
                 
                 x++;
@@ -119,30 +144,38 @@ abstract public class AhFicusStructureHelper
     }
     
     public List<BlockPos> getStructure(World world, BlockPos blockPos)
-    {
-        boolean exists = true;
-        List<BlockPos> blocks = new ArrayList<BlockPos>();
-        
-        for(Map.Entry<BlockPos, StructurePiece> entry : structure.entrySet())
+    {        
+        for(int i = 0; i < structure.size(); i++)
         {
-            BlockPos entryBlockPos = entry.getKey();
-            BlockPos targetBlockPos = blockPos.add(entryBlockPos);
-            StructurePiece entryPiece = entry.getValue();
+            boolean exists = true;
+            List<BlockPos> blocks = new ArrayList<BlockPos>();
             
-            exists &= entryPiece.matches(world, targetBlockPos);
-            
-            if(!exists)
+            for(Map.Entry<BlockPos, StructurePiece> entry : structure.get(i).entrySet())
             {
-                break;
+                BlockPos entryBlockPos = entry.getKey();
+                BlockPos targetBlockPos = blockPos.add(entryBlockPos);
+                StructurePiece entryPiece = entry.getValue();
+                
+                exists &= entryPiece.matches(world, targetBlockPos);
+                
+                if(!exists)
+                {
+                    break;
+                }
+                
+                if(!entryPiece.any)
+                {
+                    blocks.add(targetBlockPos);
+                }
             }
             
-            if(!entryPiece.any)
+            if(exists)
             {
-                blocks.add(targetBlockPos);
+                return blocks;
             }
         }
         
-        return exists ? blocks : null;
+        return null;
     }
     
     abstract public void activateStructure(World world, List<BlockPos> blocks);

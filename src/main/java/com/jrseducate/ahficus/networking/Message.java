@@ -1,10 +1,12 @@
 package com.jrseducate.ahficus.networking;
 
 import com.jrseducate.ahficus.AhFicus;
+import com.jrseducate.ahficus.entity.EntityLightning;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,7 +25,7 @@ public class Message implements IMessage
         Null,
         Bulk,
         SpawnParticle,
-        PlaySound,
+        SpawnWeather,
     }
     
     public MessageType type;
@@ -82,6 +84,7 @@ public class Message implements IMessage
         
         result |= handleBulkMessage(ctx);
         result |= handleSpawnParticle(ctx);
+        result |= handleSpawnWeather(ctx);
         
         return result;
     }
@@ -168,6 +171,51 @@ public class Message implements IMessage
                 if(MINECRAFT.world.provider.getDimension() == dimension)
                 {
                     MINECRAFT.world.spawnParticle(EnumParticleTypes.getByName(particleType), xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed);
+                }
+                
+                return true;
+            }
+            catch(Exception ex)
+            {
+                AhFicus.logger.info(ex.getMessage());
+            }
+        }
+        
+        return false;
+    }
+    
+    public static Message spawnLightning(Side side, int dimension, BlockPos blockPos, boolean effectOnly)
+    {
+        if(side != Side.SERVER)
+        {
+            return new Message(side, MessageType.Null);
+        }
+        
+        return new Message(side, MessageType.SpawnWeather, VarList.fromArray(
+            new Var(dimension),
+            new Var(blockPos),
+            new Var(effectOnly)
+        ));
+    }
+    
+    public boolean handleSpawnWeather(MessageContext ctx)
+    {
+        if(type == MessageType.SpawnWeather && ctx.side == Side.CLIENT)
+        {
+            final Minecraft MINECRAFT = Minecraft.getMinecraft();
+            
+            try
+            {
+                int dimension      = getVar().getInt();
+                BlockPos blockPos  = getVar().getBlockPos();
+                boolean effectOnly = getVar().getBoolean();
+                
+                if(MINECRAFT.world.provider.getDimension() == dimension)
+                {
+                    EntityLightning weatherEffect = new EntityLightning(MINECRAFT.world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), effectOnly);
+                    weatherEffect.setPlayer(MINECRAFT.player);
+                    
+                    MINECRAFT.world.addWeatherEffect(weatherEffect);
                 }
                 
                 return true;

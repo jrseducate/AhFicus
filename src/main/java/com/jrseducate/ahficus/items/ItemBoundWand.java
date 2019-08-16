@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
-public class ItemBoundWand extends AhFicusItem implements IItemColor
+public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRightClick, IItemColor
 {
     public static final String RegistryName = "bound_wand";
     
@@ -30,7 +30,6 @@ public class ItemBoundWand extends AhFicusItem implements IItemColor
         
         setCreativeTab(CreativeTabs.MISC);
         setMaxStackSize(1);
-        // TODO: See about having conditional Max Damage based on the focus_type
         setMaxDamage(9999);
     }
     
