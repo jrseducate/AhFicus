@@ -1,0 +1,30 @@
+{
+	"_comment": [
+		"Craft a finder wand focus"
+	],
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"sds",
+		"ded",
+		"sds"
+	],
+	"group": "ahficus:wand_focus",
+	"key": {
+		"d": {
+			"item": "minecraft:diamond"
+		},
+		"e": {
+			"item": "minecraft:ender_eye"
+		},
+		"s": {
+			"item": "minecraft:stone",
+			"data": 0
+		}
+	},
+	"result": {
+		"item": "ahficus:wand_focus",
+		"nbt": {
+			"focus_type": "finder"
+		}
+	}
+}

@@ -46,4 +46,9 @@ public abstract class AhFicusItemHelper
     {
         
     }
+    
+    public void customRender(EntityPlayer player, ItemStack stack, NBTTagCompound nbt)
+    {
+        
+    }
 }

@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
-public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRightClick, IItemColor
+public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRightClick, ItemCustomRendering, IItemColor
 {
     public static final String RegistryName = "bound_wand";
     
@@ -133,6 +133,17 @@ public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRigh
         if(itemHelper != null)
         {
             itemHelper.onUpdate(entityIn, stack, stack.getTagCompound(), isSelected);
+        }
+    }
+
+    @Override
+    public void customRender(EntityPlayer player, ItemStack itemStack)
+    {
+        AhFicusItemHelper itemHelper = getItemHelper(itemStack);
+        
+        if(itemHelper != null)
+        {
+            itemHelper.customRender(player, itemStack, itemStack.getTagCompound());
         }
     }
 }
