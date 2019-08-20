@@ -2,6 +2,7 @@ package com.jrseducate.ahficus.events;
 
 import com.jrseducate.ahficus.AhFicus;
 import com.jrseducate.ahficus.items.ItemCustomRendering;
+import com.jrseducate.ahficus.items.ItemCustomScrollWheel;
 import com.jrseducate.ahficus.items.ItemPreventDefaultRightClick;
 import com.jrseducate.ahficus.networking.AhFicusNetworkingManager;
 import com.jrseducate.ahficus.networking.Message;
@@ -15,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,17 +31,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class AhFicusEventManager
 {
-    AhFicusNetworkingManager NetworkingManager;
-    
-    public AhFicusEventManager(AhFicusNetworkingManager NetworkingManager)
+    public AhFicusEventManager()
     {
-        this.NetworkingManager = NetworkingManager;
+        MinecraftForge.EVENT_BUS.register(this);
     }
     
     public void init(Side side)
     {
-        MinecraftForge.EVENT_BUS.register(this);
-        NetworkingManager.Network.registerMessage(MessageManager.class, Message.class, 0, side);
+        AhFicus.NetworkingManager.Network.registerMessage(MessageManager.class, Message.class, 0, side);
     }
     
     public void registerRender(Item item)
@@ -104,6 +103,31 @@ public class AhFicusEventManager
             if(item instanceof ItemCustomRendering)
             {
                 ((ItemCustomRendering)item).customRender(player, itemStack);
+            }
+        }
+    }
+    
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void mouseEvent(MouseEvent event)
+    {
+        if(event.getDwheel() == 0)
+        {
+            return;
+        }
+        
+        Minecraft MINECRAFT = Minecraft.getMinecraft();
+        EntityPlayer player = MINECRAFT.player;
+        
+        if(player instanceof EntityPlayer)
+        {
+            ItemStack itemStack = player.getHeldItemMainhand();
+            Item item = itemStack.getItem();
+            
+            if(item instanceof ItemCustomScrollWheel && ((ItemCustomScrollWheel) item).onScrollWheelValid(player, itemStack, itemStack.getTagCompound(), event.getDwheel()))
+            {
+                AhFicus.NetworkingManager.Network.sendToServer(Message.scrollEvent(Side.CLIENT, player, event.getDwheel()));
+                event.setCanceled(true);
             }
         }
     }

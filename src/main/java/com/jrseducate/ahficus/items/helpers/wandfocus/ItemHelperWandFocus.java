@@ -60,8 +60,14 @@ public abstract class ItemHelperWandFocus extends AhFicusItemHelper
     }
     
     @Override
-    public void addItemInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    public String getUnlocalizedName(ItemStack stack, String unlocalizedName)
     {
-        tooltip.add(TextFormatting.GREEN + focusDisplayName);
+        return unlocalizedName + '.' + focusType;
     }
+    
+//    @Override
+//    public void addItemInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+//    {
+//        tooltip.add(TextFormatting.GREEN + focusDisplayName);
+//    }
 }

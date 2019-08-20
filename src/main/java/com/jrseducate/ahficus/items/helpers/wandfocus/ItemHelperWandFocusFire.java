@@ -30,7 +30,7 @@ public class ItemHelperWandFocusFire extends ItemHelperWandFocus
     @Override
     public void onItemRightClick(EntityPlayer player, ItemStack stack, NBTTagCompound nbt)
     {
-        if(AhFicus.isServer(player.world))
+        if(AhFicus.isServer(player.world) && !player.isSneaking())
         {
             Vec3d lookDir = player.getLookVec();
             Vec3d eyePos = new Vec3d(player.posX, player.posY + (double)player.getEyeHeight(), player.posZ);
@@ -59,7 +59,7 @@ public class ItemHelperWandFocusFire extends ItemHelperWandFocus
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, ItemStack stack, NBTTagCompound nbt, EnumFacing facing,
             float hitX, float hitY, float hitZ)
     {
-        if(AhFicus.isServer(player.world))
+        if(AhFicus.isServer(player.world) && player.isSneaking())
         {
             BlockPos targetPos = pos.add(facing.getFrontOffsetX(), facing.getFrontOffsetY(), facing.getFrontOffsetZ());
             IBlockState targetBlockState = player.world.getBlockState(targetPos);
@@ -73,9 +73,11 @@ public class ItemHelperWandFocusFire extends ItemHelperWandFocus
                 
                 damageItem(stack, player);
             }
+            
+            return EnumActionResult.SUCCESS;
         }
-        
-        return EnumActionResult.SUCCESS;
+
+        return EnumActionResult.FAIL;
     }
     
     @Override

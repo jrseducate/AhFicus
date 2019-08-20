@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
-public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRightClick, ItemCustomRendering, IItemColor
+public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRightClick, ItemCustomRendering, IItemColor, ItemCustomScrollWheel
 {
     public static final String RegistryName = "bound_wand";
     
@@ -66,6 +66,20 @@ public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRigh
         {
             tooltip.add(TextFormatting.RED + "Broken Bound Wand :(");
         }
+    }
+    
+    @Override
+    public String getUnlocalizedName(ItemStack stack)
+    {
+        AhFicusItemHelper itemHelper = getItemHelper(stack);
+        
+        if(itemHelper != null)
+        {
+            return itemHelper.getUnlocalizedName(stack, super.getUnlocalizedName(stack));
+        }
+        
+        // TODO Auto-generated method stub
+        return super.getUnlocalizedName(stack);
     }
     
     @Override
@@ -144,6 +158,30 @@ public class ItemBoundWand extends AhFicusItem implements ItemPreventDefaultRigh
         if(itemHelper != null)
         {
             itemHelper.customRender(player, itemStack, itemStack.getTagCompound());
+        }
+    }
+
+    @Override
+    public boolean onScrollWheelValid(EntityPlayer player, ItemStack stack, NBTTagCompound nbt, int scrollDir)
+    {
+        AhFicusItemHelper itemHelper = getItemHelper(stack);
+        
+        if(itemHelper != null)
+        {
+            return itemHelper.onScrollWheelValid(player, stack, nbt, scrollDir);
+        }
+        
+        return false;
+    }
+
+    @Override
+    public void onScrollWheel(EntityPlayer player, ItemStack stack, NBTTagCompound nbt, int scrollDir)
+    {
+        AhFicusItemHelper itemHelper = getItemHelper(stack);
+        
+        if(itemHelper != null)
+        {
+            itemHelper.onScrollWheel(player, stack, nbt, scrollDir);
         }
     }
 }

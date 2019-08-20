@@ -46,8 +46,9 @@ public class AhFicus
         NetworkingManager = new AhFicusNetworkingManager();
         NetworkingManager.init();
         
-        EventManager = new AhFicusEventManager(NetworkingManager);
-        EventManager.init(event.getSide());
+        EventManager = new AhFicusEventManager();
+        EventManager.init(Side.CLIENT);
+        EventManager.init(Side.SERVER);
         
         ItemManager = new AhFicusItemManager();
         ItemManager.init();

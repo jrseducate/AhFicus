@@ -2,11 +2,16 @@ package com.jrseducate.ahficus.networking;
 
 import com.jrseducate.ahficus.AhFicus;
 import com.jrseducate.ahficus.entity.EntityLightning;
+import com.jrseducate.ahficus.items.ItemCustomScrollWheel;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +31,7 @@ public class Message implements IMessage
         Bulk,
         SpawnParticle,
         SpawnWeather,
+        ScrollEvent,
     }
     
     public MessageType type;
@@ -85,6 +91,7 @@ public class Message implements IMessage
         result |= handleBulkMessage(ctx);
         result |= handleSpawnParticle(ctx);
         result |= handleSpawnWeather(ctx);
+        result |= handleScrollEvent(ctx);
         
         return result;
     }
@@ -216,6 +223,47 @@ public class Message implements IMessage
                     weatherEffect.setPlayer(MINECRAFT.player);
                     
                     MINECRAFT.world.addWeatherEffect(weatherEffect);
+                }
+                
+                return true;
+            }
+            catch(Exception ex)
+            {
+                AhFicus.logger.info(ex.getMessage());
+            }
+        }
+        
+        return false;
+    }
+    
+    public static Message scrollEvent(Side side, EntityPlayer player, int scrollDir)
+    {
+        if(side != Side.CLIENT)
+        {
+            return new Message(side, MessageType.Null);
+        }
+        
+        return new Message(side, MessageType.ScrollEvent, VarList.fromArray(
+            new Var(player.getName()),
+            new Var(scrollDir)
+        ));
+    }
+    
+    public boolean handleScrollEvent(MessageContext ctx)
+    {
+        if(type == MessageType.ScrollEvent && ctx.side == Side.SERVER)
+        {            
+            try
+            {
+                String playerName = getVar().getString();
+                EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
+                ItemStack itemStack = player.getHeldItemMainhand();
+                Item item = itemStack.getItem();
+                int scrollDir = getVar().getInt();
+                
+                if(item instanceof ItemCustomScrollWheel)
+                {
+                    ((ItemCustomScrollWheel)item).onScrollWheel(player, itemStack, itemStack.getTagCompound(), scrollDir);
                 }
                 
                 return true;

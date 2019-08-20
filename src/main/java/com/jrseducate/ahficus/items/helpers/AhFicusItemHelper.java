@@ -2,6 +2,8 @@ package com.jrseducate.ahficus.items.helpers;
 
 import java.util.List;
 
+import com.jrseducate.ahficus.AhFicus;
+
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,12 +44,27 @@ public abstract class AhFicusItemHelper
         return -1;
     }
     
+    public String getUnlocalizedName(ItemStack stack, String unlocalizedName)
+    {
+        return unlocalizedName;
+    }
+    
     public void addItemInformation(ItemStack stack, World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
         
     }
     
     public void customRender(EntityPlayer player, ItemStack stack, NBTTagCompound nbt)
+    {
+        
+    }
+
+    public boolean onScrollWheelValid(EntityPlayer player, ItemStack stack, NBTTagCompound nbt, int scrollDir)
+    {
+        return false;
+    }
+
+    public void onScrollWheel(EntityPlayer player, ItemStack stack, NBTTagCompound nbt, int scrollDir)
     {
         
     }
